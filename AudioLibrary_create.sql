@@ -11,14 +11,14 @@ Length int not null);
 
 create table Author (
 id number generated always as identity,
-FirstName varchar(64) not null,
-LastName varchar(64) not null);
+AuthorName varchar(64) not null;
 
 create table AudioUser(
 id number generated always as identity,
 FirstName varchar(64) not null,
 LastName varchar(64) not null,
-Email varchar(64) not null);
+Email varchar(64) not null,
+Pass varchar(64) not null);
 
 create table Playlist(
 id number generated always as identity,
