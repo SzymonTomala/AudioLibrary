@@ -22,12 +22,15 @@ Email varchar(64) not null);
 
 create table Playlist(
 id number generated always as identity,
-LikeId number not null);
+AudioUserId number not null);
+
 
 create table Likes(
 id number generated always as identity,
 AudioUserId number not null,
-AudioFileId number not null);
+AudioFileId number not null,
+PlaylistId number not null);
+
 
 
 --###RELATIONS###
@@ -52,14 +55,17 @@ foreign key (AuthorId) references Author(id);
 alter table AudioFile add constraint fk_TypeOfAudio
 foreign key (TypeOfAudioId) references TypeOfAudio(id);
 
-alter table Playlist add constraint fk_Likes
-foreign key (LikeId) references Likes(id);
+alter table Playlist add constraint fk_AudioUserPlaylist
+foreign key (AudioUserId) references AudioUser(id);
 
 alter table Likes add constraint fk_AudioUser
 foreign key (AudioUserId) references AudioUser(id);
 
 alter table Likes add constraint fk_AudioFile
 foreign key (AudioFileId) references AudioFile(id);
+
+alter table Likes add constraint fk_Playlist
+foreign key (PlaylistId) references Playlist(id);
 
 
 
