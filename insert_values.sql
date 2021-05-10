@@ -1,3 +1,25 @@
+INSERT INTO typeofaudio (Type)
+VALUES ('Song');
+INSERT INTO typeofaudio (Type)
+VALUES ('AudioBook');
+INSERT INTO typeofaudio (Type)
+VALUES ('Podcast');
+
+INSERT INTO AudioUser (firstname, lastname, email, pass)
+VALUES ('Szymon', 'Tomala','szymon@onet.pl','q');
+INSERT INTO AudioUser (firstname, lastname, email, pass)
+VALUES ('Adam', 'Bednorz','adam@interia.pl','q');
+INSERT INTO AudioUser (firstname, lastname, email, pass)
+VALUES ('Piotr', 'Gorzelnik','piotr@wp.pl','q');
+
+INSERT INTO Author (authorname)
+VALUES ('B24');
+INSERT INTO Author (authorname)
+VALUES ('Rammstein');
+INSERT INTO Author (authorname)
+VALUES ('Crystal Castles');
+
+
 REM INSERTING into AUDIOLIBRARY.AUDIOFILE
 SET DEFINE OFF;
 Insert into AUDIOLIBRARY.AUDIOFILE (ID,TITLE,AUTHORID,TYPEOFAUDIOID,LENGTH) values ('24','Kept','3','23','160');
