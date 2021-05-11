@@ -126,3 +126,37 @@ var add_audiofile number;
 call ADDAUDIOFILE('Viva la vida', 'Coldplay', 'Song', '170')
 into :add_audiofile;
 PRINT add_audiofile;
+
+
+CREATE OR REPLACE FUNCTION DELETEAUDIOFILE(
+    a_title VARCHAR2,
+    a_authorName VARCHAR2,
+    a_typeOfAudio VARCHAR2,
+    a_length INT
+    ) RETURN NUMBER
+AS
+    a_id NUMBER;
+    a_TypeOfAudioId NUMBER;
+    a_AuthorId NUMBER;
+BEGIN
+    SELECT id into a_TypeOfAudioId FROM TypeOfAudio WHERE Type = a_typeOfAudio;
+    SELECT id into a_AuthorId FROM Author WHERE AuthorName = a_authorName;
+    SELECT id into a_id FROM AudioFile WHERE title = a_title AND
+        authorId = a_AuthorId AND typeOfAudioId = a_typeOfAudioId AND length = a_length;
+    DELETE FROM audiofile WHERE id = a_id;    
+    RETURN a_id;    
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        IF a_TypeOfAudioId IS NULL then
+            return 0;
+        END IF;
+        IF a_AuthorId IS NULL then
+            return 0;
+        END IF;
+        RETURN 0;
+END;
+/
+
+var delete_audiofile number;
+call DELETEAUDIOFILE('Viva la vida', 'Coldplay', 'Songs', '170')
+into :delete_audiofile;
+PRINT delete_audiofile;
