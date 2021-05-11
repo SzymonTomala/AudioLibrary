@@ -32,7 +32,6 @@ AudioFileId number not null,
 PlaylistId number not null);
 
 
-
 --###RELATIONS###
     --###PRIMARY KEYS###
 alter table TypeOfAudio add constraint pk_TypeOfAudios
