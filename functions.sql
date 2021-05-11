@@ -89,3 +89,34 @@ var delete_author number;
 call DELETEAUTHOR('Calvin Harris')
 into :delete_author;
 PRINT delete_author;
+
+
+CREATE OR REPLACE FUNCTION ADDAUDIOFILE(
+    a_title VARCHAR2,
+    a_authorName VARCHAR2,
+    a_typeOfAudio VARCHAR2,
+    a_length INT
+    ) RETURN NUMBER
+AS
+    a_id NUMBER;
+    a_TypeOfAudioId NUMBER;
+    a_AuthorId NUMBER;
+BEGIN
+    SELECT id into a_TypeOfAudioId FROM TypeOfAudio WHERE Type = a_typeOfAudio;
+    SELECT id into a_AuthorId FROM Author WHERE AuthorName = a_authorName;
+    SELECT id into a_id FROM AudioFile WHERE title = a_title AND
+        authorId = a_AuthorId AND typeOfAudioId = a_typeOfAudioId AND length = a_length;
+    RETURN a_id;    
+    EXCEPTION WHEN NO_DATA_FOUND THEN    
+        INSERT INTO AudioFile (title, authorId, typeOfAudioId, length)
+            VALUES (a_title, a_AuthorId, a_TypeOfAudioId, a_length);
+        SELECT id INTO a_id FROM AudioFile WHERE rownum = 1
+            ORDER BY id DESC;    
+        RETURN a_id;    
+END;
+/
+
+var add_audiofile number;
+call ADDAUDIOFILE('Animals', 'Martin Garrix', 'Song', '160')
+into :add_audiofile;
+PRINT add_audiofile;
