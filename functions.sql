@@ -107,7 +107,13 @@ BEGIN
     SELECT id into a_id FROM AudioFile WHERE title = a_title AND
         authorId = a_AuthorId AND typeOfAudioId = a_typeOfAudioId AND length = a_length;
     RETURN a_id;    
-    EXCEPTION WHEN NO_DATA_FOUND THEN    
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        IF a_TypeOfAudioId IS NULL then
+            return 0;
+        END IF;
+        IF a_AuthorId IS NULL then
+            return 0;
+        END IF;
         INSERT INTO AudioFile (title, authorId, typeOfAudioId, length)
             VALUES (a_title, a_AuthorId, a_TypeOfAudioId, a_length);
         SELECT id INTO a_id FROM AudioFile WHERE rownum = 1
@@ -117,6 +123,6 @@ END;
 /
 
 var add_audiofile number;
-call ADDAUDIOFILE('Animals', 'Martin Garrix', 'Song', '160')
+call ADDAUDIOFILE('Viva la vida', 'Coldplay', 'Song', '170')
 into :add_audiofile;
 PRINT add_audiofile;
