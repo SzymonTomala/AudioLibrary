@@ -46,3 +46,26 @@ var user_signin number;
 call SIGNIN('Piotr', 'Kuczera', 'rybnik@wp.pl', 'haslo12')
 into :user_signin;
 PRINT user_signin;
+
+
+CREATE OR REPLACE FUNCTION ADDAUTHOR(
+    a_authorname VARCHAR2
+    ) RETURN NUMBER
+AS
+    a_id NUMBER;
+BEGIN
+    SELECT id into a_id FROM Author WHERE authorname =  a_authorname;
+    RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN    
+        INSERT INTO Author (authorname)
+            VALUES (a_authorname);
+        SELECT id INTO a_id FROM Author WHERE rownum = 1
+            ORDER BY id DESC;    
+        RETURN a_id;    
+END;
+/
+
+var add_author number;
+call ADDAUTHOR('Calvin Harris')
+into :add_author;
+PRINT add_author;
