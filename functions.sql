@@ -69,3 +69,23 @@ var add_author number;
 call ADDAUTHOR('Calvin Harris')
 into :add_author;
 PRINT add_author;
+
+
+CREATE OR REPLACE FUNCTION DELETEAUTHOR(
+    a_authorname VARCHAR2
+    ) RETURN NUMBER
+AS
+    a_id NUMBER;
+BEGIN
+    SELECT id into a_id FROM Author WHERE authorname =  a_authorname;
+    DELETE FROM Author WHERE id = a_id;
+    return a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN       
+        RETURN 0;    
+END;
+/
+
+var delete_author number;
+call DELETEAUTHOR('Calvin Harris')
+into :delete_author;
+PRINT delete_author;
