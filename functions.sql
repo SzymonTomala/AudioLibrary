@@ -19,6 +19,30 @@ BEGIN
 END;
 /
 
-var solution number;
+var user_signup number;
 call SIGNUP('Marcin', 'Najman', 'eltost@interia.pl', 'haslo1')
-into :solution;
+into :user_signup;
+PRINT user_signup;
+
+CREATE OR REPLACE FUNCTION SIGNIN(
+    a_firstname VARCHAR2,
+    a_lastname VARCHAR2,
+    a_email VARCHAR2,
+    a_pass VARCHAR2
+    ) RETURN NUMBER
+AS
+    a_id NUMBER;
+BEGIN
+    SELECT id into a_id FROM AudioUser WHERE firstname = a_firstname AND
+        lastname = a_lastname AND email = a_email AND a_pass = pass;
+    RETURN SIGN(a_id);
+        
+    EXCEPTION WHEN NO_DATA_FOUND THEN      
+        RETURN 0;    
+END;
+/
+
+var user_signin number;
+call SIGNIN('Piotr', 'Kuczera', 'rybnik@wp.pl', 'haslo12')
+into :user_signin;
+PRINT user_signin;
