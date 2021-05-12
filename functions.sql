@@ -160,3 +160,115 @@ var delete_audiofile number;
 call DELETEAUDIOFILE('Viva la vida', 'Coldplay', 'Songs', '170')
 into :delete_audiofile;
 PRINT delete_audiofile;
+
+-- FUNKCJE SZYMONA --
+-- deleteUser ok -- changeUserPassword ok-- 
+-- addPlaylist -- addFileOnPlaylist -- deleteFileFromPlaylist
+
+
+CREATE OR REPLACE FUNCTION ADDPLAYLIST(
+    a_audiouserid NUMBER,
+    a_playlistname VARCHAR2
+) RETURN NUMBER
+AS 
+    a_id NUMBER;
+    is_added NUMBER;
+BEGIN 
+    SELECT id into a_id FROM Playlist WHERE playlistname =  a_playlistname;
+    RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+    IF a_audiouserid IS NULL THEN RETURN 0;
+    END IF;
+        INSERT INTO Playlist(audiouserid, playlistname)
+        VALUES (a_audiouserid, a_playlistname);
+    RETURN 1;
+    
+
+END;
+/
+
+var add_playlist number;
+call ADDPLAYLIST(5, 'Elektroniczna')
+into :add_playlist;
+PRINT add_playlist;
+
+CREATE OR REPLACE FUNCTION DELETEUSER(
+    a_firstname VARCHAR2,
+    a_lastname VARCHAR2,
+    a_email VARCHAR2,
+    a_pass VARCHAR2
+) RETURN NUMBER
+AS
+    check_firstname VARCHAR2(64);
+    check_lastname VARCHAR2(64);
+    check_email VARCHAR2(64);
+    check_pass VARCHAR2(64);
+    a_id NUMBER;
+BEGIN
+    SELECT firstname INTO check_firstname FROM audiouser WHERE firstname = a_firstname;
+    SELECT lastname INTO check_lastname FROM audiouser WHERE lastname = a_lastname;
+    SELECT email INTO check_email FROM audiouser WHERE email = a_email;
+    SELECT pass INTO check_pass FROM audiouser WHERE pass = a_pass;
+    
+    SELECT id into a_id FROM AudioUser WHERE firstname = check_firstname AND
+    lastname = check_lastname AND email = check_email AND pass = check_pass;
+        
+    DELETE FROM audiouser WHERE id = a_id;
+    RETURN 1;
+END;
+/
+
+var delete_user NUMBER;
+call DELETEUSER('Marcin', 'Najman', 'eltost@interia.pl', 'haslo1')
+into :delete_user;
+print delete_user;
+    
+CREATE OR REPLACE FUNCTION CHANGEPASSWORD(
+    a_email VARCHAR2,
+    a_pass VARCHAR2,
+    a_newpass VARCHAR2
+) RETURN NUMBER
+AS 
+    old_pass VARCHAR2(64);
+    is_changed NUMBER;
+BEGIN
+    SELECT pass into old_pass FROM AudioUser WHERE email = a_email;
+    IF old_pass != a_pass 
+        THEN RETURN 0;
+    END IF;
+    UPDATE AudioUser SET pass = a_newpass WHERE email = a_email;
+    RETURN 1;
+END;
+/
+
+var change_password number;
+call CHANGEPASSWORD('szymon@onet.pl', 'now', 'blad')
+into :change_password;
+PRINT change_password;
+
+/* ---- TO DO -----
+CREATE OR REPLACE FUNCTION ADDPLAYLIST(
+    a_userid NUMBER,
+    a_playlistname VARCHAR2
+)
+AS 
+BEGIN
+*/
+
+CREATE OR REPLACE FUNCTION ADDFILETOPLAYLIST(
+    user_id NUMBER,
+    file_id NUMBER,
+    playlist_id NUMBER
+) RETURN NUMBER
+AS
+BEGIN 
+    INSERT INTO Likes(audiouserid, audiofileid, playlistid)
+    VALUES (user_id, file_id, playlist_id);
+    RETURN 1;
+END;
+/
+
+var add_toplaylist number;
+call ADDFILETOPLAYLIST(5, 44, 21)
+into :add_toplaylist;
+PRINT add_toplaylist;
