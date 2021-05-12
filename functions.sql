@@ -162,10 +162,10 @@ into :delete_audiofile;
 PRINT delete_audiofile;
 
 -- FUNKCJE SZYMONA --
--- deleteUser ok -- changeUserPassword ok-- 
+-- deleteUser -- changeUserPassword -- 
 -- addPlaylist -- addFileOnPlaylist -- deleteFileFromPlaylist
 
-
+-- poprawione, nieprzetestowane
 CREATE OR REPLACE FUNCTION ADDPLAYLIST(
     a_audiouserid NUMBER,
     a_playlistname VARCHAR2
@@ -174,16 +174,15 @@ AS
     a_id NUMBER;
     is_added NUMBER;
 BEGIN 
-    SELECT id into a_id FROM Playlist WHERE playlistname =  a_playlistname;
+    SELECT id into a_id FROM Playlist WHERE playlistname =  a_playlistname AND
+    audiouserid = a_audiouserid;
     RETURN a_id;
     EXCEPTION WHEN NO_DATA_FOUND THEN
-    IF a_audiouserid IS NULL THEN RETURN 0;
-    END IF;
         INSERT INTO Playlist(audiouserid, playlistname)
-        VALUES (a_audiouserid, a_playlistname);
-    RETURN 1;
-    
-
+            VALUES (a_audiouserid, a_playlistname);
+        SELECT id INTO a_id FROM Playlist WHERE rownum = 1
+            ORDER BY id DESC;
+    RETURN a_id;
 END;
 /
 
@@ -192,6 +191,7 @@ call ADDPLAYLIST(5, 'Elektroniczna')
 into :add_playlist;
 PRINT add_playlist;
 
+-- poprawione, nieprzetestowane
 CREATE OR REPLACE FUNCTION DELETEUSER(
     a_firstname VARCHAR2,
     a_lastname VARCHAR2,
@@ -199,45 +199,36 @@ CREATE OR REPLACE FUNCTION DELETEUSER(
     a_pass VARCHAR2
 ) RETURN NUMBER
 AS
-    check_firstname VARCHAR2(64);
-    check_lastname VARCHAR2(64);
-    check_email VARCHAR2(64);
-    check_pass VARCHAR2(64);
     a_id NUMBER;
 BEGIN
-    SELECT firstname INTO check_firstname FROM audiouser WHERE firstname = a_firstname;
-    SELECT lastname INTO check_lastname FROM audiouser WHERE lastname = a_lastname;
-    SELECT email INTO check_email FROM audiouser WHERE email = a_email;
-    SELECT pass INTO check_pass FROM audiouser WHERE pass = a_pass;
-    
-    SELECT id into a_id FROM AudioUser WHERE firstname = check_firstname AND
-    lastname = check_lastname AND email = check_email AND pass = check_pass;
-        
-    DELETE FROM audiouser WHERE id = a_id;
-    RETURN 1;
+    SELECT id into a_id FROM AudioUser WHERE firstname = a_firstname AND
+    lastname = a_lastname AND email = a_email AND pass = a_pass;
+    DELETE FROM AudioUser WHERE id = a_id;
+    RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        RETURN 0;
 END;
 /
+
 
 var delete_user NUMBER;
 call DELETEUSER('Marcin', 'Najman', 'eltost@interia.pl', 'haslo1')
 into :delete_user;
 print delete_user;
     
+-- poprawione, nieprzetestowane
 CREATE OR REPLACE FUNCTION CHANGEPASSWORD(
     a_email VARCHAR2,
     a_pass VARCHAR2,
     a_newpass VARCHAR2
 ) RETURN NUMBER
 AS 
-    old_pass VARCHAR2(64);
-    is_changed NUMBER;
 BEGIN
-    SELECT pass into old_pass FROM AudioUser WHERE email = a_email;
-    IF old_pass != a_pass 
-        THEN RETURN 0;
-    END IF;
+    SELECT id FROM AudioUser WHERE email = a_email AND pass = a_pass;
     UPDATE AudioUser SET pass = a_newpass WHERE email = a_email;
-    RETURN 1;
+        RETURN 1;
+    EXCEPTION NO_DATA_FOUND THEN 
+        RETURN 0;
 END;
 /
 
@@ -246,25 +237,25 @@ call CHANGEPASSWORD('szymon@onet.pl', 'now', 'blad')
 into :change_password;
 PRINT change_password;
 
-/* ---- TO DO -----
-CREATE OR REPLACE FUNCTION ADDPLAYLIST(
-    a_userid NUMBER,
-    a_playlistname VARCHAR2
-)
-AS 
-BEGIN
-*/
 
+-- poprawione, nieprzetestowane
 CREATE OR REPLACE FUNCTION ADDFILETOPLAYLIST(
-    user_id NUMBER,
-    file_id NUMBER,
-    playlist_id NUMBER
+    a_audiouserid NUMBER,
+    a_audiofileid NUMBER,
+    a_playlistid NUMBER
 ) RETURN NUMBER
 AS
+    a_id NUMBER;
 BEGIN 
-    INSERT INTO Likes(audiouserid, audiofileid, playlistid)
-    VALUES (user_id, file_id, playlist_id);
-    RETURN 1;
+    SELECT id into a_id FROM Likes WHERE audiouserid = a_audiouserid AND
+    audiofileid = a_audiofileid AND playlistid = a_playlistid;
+    RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        INSERT INTO Likes(audiouserid, audiofileid, playlistid)
+            VALUES (a_audiouserid, a_audiofileid, a_playlistid);
+        SELECT id INTO a_id FROM Likes WHERE rownum = 1
+            ORDER BY id DESC;
+        RETURN a_id;
 END;
 /
 
@@ -272,3 +263,22 @@ var add_toplaylist number;
 call ADDFILETOPLAYLIST(5, 44, 21)
 into :add_toplaylist;
 PRINT add_toplaylist;
+
+-- poprawione, nieprzetestowane
+CREATE OR REPLACE FUNCTION DELETEFILEFROMPLAYLIST(
+    a_audiouserid NUMBER,
+    a_audiofileid NUMBER,
+    a_playlistid NUMBER    
+) RETURN NUMBER
+AS 
+    a_id NUMBER;
+BEGIN 
+    SELECT id into a_id FROM Likes WHERE audiouserid = a_audiouserid AND
+    audiofileid = a_audiofileid AND playlistid = a_playlistid;
+    DELETE FROM Likes WHERE id = a_id;
+    RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        RETURN 0;
+END;
+/
+
