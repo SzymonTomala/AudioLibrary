@@ -165,7 +165,7 @@ PRINT delete_audiofile;
 -- deleteUser -- changeUserPassword -- 
 -- addPlaylist -- addFileOnPlaylist -- deleteFileFromPlaylist
 
--- poprawione, nieprzetestowane
+-- poprawione, przetestowane - adam
 CREATE OR REPLACE FUNCTION ADDPLAYLIST(
     a_audiouserid NUMBER,
     a_playlistname VARCHAR2
@@ -191,7 +191,7 @@ call ADDPLAYLIST(5, 'Elektroniczna')
 into :add_playlist;
 PRINT add_playlist;
 
--- poprawione, nieprzetestowane
+-- poprawione, przetestowane - adam
 CREATE OR REPLACE FUNCTION DELETEUSER(
     a_firstname VARCHAR2,
     a_lastname VARCHAR2,
@@ -216,29 +216,30 @@ call DELETEUSER('Marcin', 'Najman', 'eltost@interia.pl', 'haslo1')
 into :delete_user;
 print delete_user;
     
--- poprawione, nieprzetestowane
+-- poprawione, lekki refactor id dodane , przetestowane - adam
 CREATE OR REPLACE FUNCTION CHANGEPASSWORD(
     a_email VARCHAR2,
     a_pass VARCHAR2,
     a_newpass VARCHAR2
 ) RETURN NUMBER
 AS 
+    a_id NUMBER;
 BEGIN
-    SELECT id FROM AudioUser WHERE email = a_email AND pass = a_pass;
-    UPDATE AudioUser SET pass = a_newpass WHERE email = a_email;
-        RETURN 1;
-    EXCEPTION NO_DATA_FOUND THEN 
+    SELECT id into a_id FROM AudioUser WHERE email = a_email AND pass = a_pass;
+    UPDATE AudioUser SET pass = a_newpass WHERE email = a_email AND id = a_id;
+        RETURN a_id;
+    EXCEPTION WHEN NO_DATA_FOUND THEN 
         RETURN 0;
 END;
 /
 
 var change_password number;
-call CHANGEPASSWORD('szymon@onet.pl', 'now', 'blad')
+call CHANGEPASSWORD('szymon@onet.pl', 'q', 'blad')
 into :change_password;
 PRINT change_password;
 
 
--- poprawione, nieprzetestowane
+-- poprawione, przetestowane - adam
 CREATE OR REPLACE FUNCTION ADDFILETOPLAYLIST(
     a_audiouserid NUMBER,
     a_audiofileid NUMBER,
@@ -264,7 +265,7 @@ call ADDFILETOPLAYLIST(5, 44, 21)
 into :add_toplaylist;
 PRINT add_toplaylist;
 
--- poprawione, nieprzetestowane
+-- poprawione, przetestowane dziala
 CREATE OR REPLACE FUNCTION DELETEFILEFROMPLAYLIST(
     a_audiouserid NUMBER,
     a_audiofileid NUMBER,
@@ -281,4 +282,9 @@ BEGIN
         RETURN 0;
 END;
 /
+
+var delete_toplaylist number;
+call DELETEFILEFROMPLAYLIST(1, 1, 2)
+into :delete_toplaylist;
+PRINT delete_toplaylist;
 

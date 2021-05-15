@@ -22,7 +22,8 @@ Pass varchar(64) not null);
 
 create table Playlist(
 id number generated always as identity,
-AudioUserId number not null);
+AudioUserId number not null,
+Playlistname varchar(64) not null);
 
 
 create table Likes(
