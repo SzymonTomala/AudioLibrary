@@ -241,17 +241,21 @@ PRINT change_password;
 
 -- poprawione, przetestowane - adam
 CREATE OR REPLACE FUNCTION ADDFILETOPLAYLIST(
-    a_audiouserid NUMBER,
     a_audiofileid NUMBER,
     a_playlistid NUMBER
 ) RETURN NUMBER
 AS
+    a_audiouserid NUMBER;
     a_id NUMBER;
-BEGIN 
+BEGIN
+    SELECT audiouserid into a_audiouserid FROM playlist WHERE id = a_playlistid;
     SELECT id into a_id FROM Likes WHERE audiouserid = a_audiouserid AND
     audiofileid = a_audiofileid AND playlistid = a_playlistid;
     RETURN a_id;
     EXCEPTION WHEN NO_DATA_FOUND THEN
+        IF a_audiouserid IS NULL then
+            return 0;
+        END IF;    
         INSERT INTO Likes(audiouserid, audiofileid, playlistid)
             VALUES (a_audiouserid, a_audiofileid, a_playlistid);
         SELECT id INTO a_id FROM Likes WHERE rownum = 1
@@ -261,19 +265,20 @@ END;
 /
 
 var add_toplaylist number;
-call ADDFILETOPLAYLIST(5, 44, 21)
+call ADDFILETOPLAYLIST(1, 1)
 into :add_toplaylist;
 PRINT add_toplaylist;
 
 -- poprawione, przetestowane dziala
 CREATE OR REPLACE FUNCTION DELETEFILEFROMPLAYLIST(
-    a_audiouserid NUMBER,
     a_audiofileid NUMBER,
     a_playlistid NUMBER    
 ) RETURN NUMBER
 AS 
+    a_audiouserid NUMBER;
     a_id NUMBER;
-BEGIN 
+BEGIN
+    SELECT audiouserid into a_audiouserid FROM playlist WHERE id = a_playlistid;
     SELECT id into a_id FROM Likes WHERE audiouserid = a_audiouserid AND
     audiofileid = a_audiofileid AND playlistid = a_playlistid;
     DELETE FROM Likes WHERE id = a_id;
@@ -284,7 +289,7 @@ END;
 /
 
 var delete_toplaylist number;
-call DELETEFILEFROMPLAYLIST(1, 1, 2)
+call DELETEFILEFROMPLAYLIST(2, 2)
 into :delete_toplaylist;
 PRINT delete_toplaylist;
 
